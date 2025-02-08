@@ -1,0 +1,61 @@
+name: CI/CD Pipeline for Microservices
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform-manifests/**" # Trigger for infra changes changes
+      - "AppointmentService/**"  # Trigger for appointment service changes
+      - "PatientService/**"  # Trigger for patient service changes
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "terraform-manifests/**" # Trigger for infra changes changes
+      - "AppointmentService/**"  # Trigger for appointment service changes
+      - "PatientService/**"  # Trigger for patient service changes
+jobs:
+  # Job for infrastructure
+  infra:
+    runs-on: ubuntu-latest
+    name: Build, Deploy and Provision Infrastructure for Service 1
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'terraform-manifests') || github.event.pull_request.head.ref == 'terraform-manifests' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      # Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.6.0'  # Specify your desired Terraform version
+
+      # Set up AWS credentials
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Specify your desired AWS region
+
+      # Terraform init for service1
+      - name: Terraform Init for Infrastructure deployment
+        run: |
+          cd terraform-manifests/environments/dev
+          terraform init
+          terraform fmt
+
+      # Terraform plan for service1
+      - name: Terraform Plan for Infrastructure deployment
+        run: |
+          cd terraform-manifests/environments/dev
+          terraform plan -out=tfplan
+
+      # Terraform apply for service1
+      - name: Terraform Apply for Infrastructure deployment
+        run: |
+          cd terraform-manifests/environments/dev
+          terraform apply -auto-approve tfplan
+
+      
