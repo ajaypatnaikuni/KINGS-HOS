@@ -1,0 +1,1 @@
+# You can add IAM role-specific variables if necessary
