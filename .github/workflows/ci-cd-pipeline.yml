@@ -17,10 +17,10 @@ on:
       - "PatientService/**"  # Trigger for patient service changes
 jobs:
   # Job for infrastructure
-  infra:
+  terraform:
     runs-on: ubuntu-latest
     name: Build, Deploy and Provision Infrastructure for Service 1
-    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'terraform-manifests') || github.event.pull_request.head.ref == 'terraform-manifests' }}
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'terraform') || github.event.pull_request.head.ref == 'terraform' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
