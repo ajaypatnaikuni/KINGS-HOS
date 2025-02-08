@@ -44,6 +44,7 @@ jobs:
         run: |
           cd ../../terraform-manifests/environments/dev
           terraform init
+          terraform fmt
 
       # Terraform plan for service1
       - name: Terraform Plan for Infrastructure deployment
